@@ -1,6 +1,11 @@
 {
   "name": "md-links",
   "version": "0.1.0",
+  "description": "Analiza directorios o archivos .md y retorna el estado de estos",
+  "main": "./src/index.js",
+  "bin": {
+    "md-links": "./src/mdLinks.js"
+  },
   "engines": {
     "node": ">=16.x"
   }
