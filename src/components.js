@@ -1,12 +1,24 @@
-let fs = require("fs");
+const fs = require("fs");
+const path = require("path");
 
 route = process.argv[2];
 
 const routeCheck = () => {
-  if (fs.existsSync(route) == true) {
-    console.log("La ruta es valida");
+  fs.existsSync(route);
+};
+
+const absoluteLink = (route) => {
+  //si la ruta es absoluta, retornar
+  if (path.isAbsolute(route) === false) {
+    console.log("esto es ruta resuelta " + path.resolve(route));
+    return path.resolve(route);
   } else {
-    console.log("la ruta no existe");
+    return console.log(route + " es absoluta");
   }
 };
-module.exports = { routeCheck };
+
+const fileType = () => {};
+module.exports = {
+  routeCheck,
+  absoluteLink,
+};

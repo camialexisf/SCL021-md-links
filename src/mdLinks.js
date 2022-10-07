@@ -1,6 +1,16 @@
 #!/usr/bin/env node
-const { routeCheck } = require("./components");
+const { routeCheck, absoluteLink } = require("./components");
 
-route = process.argv[2];
+const route = process.argv[2];
+const absoluteUserInput = absoluteLink(route);
 
-routeCheck(route);
+const mdLinks = () => {
+  return new Promise((resolve, reject) => {
+    if (routeCheck(route) === false) {
+      reject("la ruta no es valida :(");
+    } else {
+      absoluteUserInput;
+    }
+  });
+};
+mdLinks();
