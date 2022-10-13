@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const promise = require("promise");
+const colors = require("colors");
 
 route = process.argv[2];
 
@@ -67,12 +68,12 @@ const findUrl = (mdFiles) => {
         reject(err);
       } else if (data.match(urlRegex) === null) {
         reject("No se encuentran links en el documento");
-        return;
       } else if (data) {
         data.match(urlRegex).forEach((link) => {
           urlArray.push(link);
+          //console.log(link);
         });
-        return urlArray;
+        resolve(urlArray);
       }
     });
   });
