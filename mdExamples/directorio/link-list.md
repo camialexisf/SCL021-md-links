@@ -2,7 +2,7 @@
 
 ## Índice
 
-- [1. Preámbulo](#1-preámbulo)
+- (#1-preámbulo)
 
 ---
 
