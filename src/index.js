@@ -4,6 +4,7 @@ const promise = require("promise");
 const colors = require("colors");
 const markdownLinkExtractor = require("markdown-link-extractor");
 const linkCheck = require("link-check");
+const { reject } = require("promise");
 
 const route = process.argv[2];
 
@@ -28,10 +29,23 @@ const isFile = (path) => {
     return false;
   }
 };
+const readNewFile = (route) => {
+  return new Promise((resolve, reject) => {
+    fs.readFile(route, "utf-8", (err, file) => {
+      if (err) {
+        throw err;
+      }
+      if (!isFile(route)) {
+        reject("No se puede leer el archivo".cyan + file);
+      }
+      resolve(file);
+    });
+  });
+};
 
 const readDirectory = (route) => {
   //aca quiero iterar el directorio
-  return new promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const mdFiles = [];
     fs.readdirSync(route, "utf-8", (err, files) => {
       if (err) {
@@ -39,9 +53,8 @@ const readDirectory = (route) => {
       }
       console.log("encontré estos archivos: ");
       files.forEach((file) => {
-        if (extCheck(route) === true) {
-          console.log(file);
-          mdFiles.push(route);
+        if (extCheck(file) === true) {
+          mdFiles.push(file);
         }
       });
       console.log("analisis");
@@ -62,7 +75,7 @@ const extCheck = (route) => {
 };
 const uniqueUrl = (linksArray) => {
   let unique = new Set(linksArray);
-  console.log("links Unicos: ".cyan, [...unique].length);
+  return [...unique].length;
 };
 //aca estoy usando la libreria para extraer links
 const extractLinks = (route) => {
@@ -74,19 +87,51 @@ const extractLinks = (route) => {
 };
 //funcion que checkea el estado de los links
 const usingLinkCheck = (route) => {
-  linkCheck(route, function (err, result) {
-    const resultLink = result.link;
-    //const broken = [];
-    if (err) {
-      console.error(err);
-      return;
-    }
-    if (result.status === "dead") {
-      console.log(`${resultLink} `.cyan + " fail ".bgRed + "");
-    } else if (result.status === "alive") {
-      console.log(`${resultLink} `.cyan + " ok ".bgGreen + "");
-    }
+  return new Promise((resolve, reject) => {
+    //const objectLink = route.link;
+    linkCheck(route, function (err, result) {
+      if (err) {
+        reject("No se pudieron comprobar los links: " + result.link);
+        //console.error(err);
+        return;
+      }
+      let statusResponse = "";
+      if (result.status === "dead") {
+        statusResponse = "FAIL";
+      } else if (result.status === "alive") {
+        statusResponse = "OK";
+      }
+      resolve({
+        file: process.argv[2],
+        href: result.link,
+        statusCode: result.statusCode + " " + statusResponse,
+        //status: statusResponse,
+      });
+    });
   });
+};
+("");
+const optionStats = (linksArray) => {
+  const total = linksArray.length;
+  const unique = uniqueUrl(linksArray);
+  return { total, unique };
+};
+const optionValidateStats = (linksArray, totalUnique) => {
+  let broken = linksArray.filter((e) => e.status === "fail").length;
+  return { ...totalUnique, broken: broken };
+};
+const thirdPosition = (options) => {
+  let option;
+  if (process.argv[3] === "--validates" && process.argv[4] === "--stats") {
+    option = { validates: true, stats: true };
+  } else if (process.argv[3] === "--stats") {
+    option = { stats: true };
+  } else if (process.argv[3] === "--validate") {
+    option = { validates: true };
+  } else {
+    option = {};
+  }
+  return option;
 };
 
 module.exports = {
@@ -95,42 +140,10 @@ module.exports = {
   isFile,
   readDirectory,
   extCheck,
-  //findUrl,
-  uniqueUrl,
+  readNewFile,
   extractLinks,
   usingLinkCheck,
-  //validateLink,
-  //brokenCount,
+  optionValidateStats,
+  thirdPosition,
+  optionStats,
 };
-
-//---------------------------------------------------------
-/* 
-const findUrl = (mdFiles) => {
-  return new promise((resolve, reject) => {
-    const urlArray = [];
-    const urlRegex =
-      /(?:(?:https?|ftp|file):\/\/|www\.|ftp\.)(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[-A-Z0-9+&@#\/%=~_|$?!:,.])*(?:\([-A-Z0-9+&@#\/%=~_|$?!:,.]*\)|[A-Z0-9+&@#\/%=~_|$])/gim;
-    fs.readFile(mdFiles, "utf-8", (err, data) => {
-      if (err) {
-        reject(err);
-      } else if (data.match(urlRegex) === null) {
-        reject("No se encuentran links en el documento");
-      } else if (data) {
-        data.match(urlRegex).forEach((link) => {
-          urlArray.push(link);
-          //console.log(link);
-        });
-        resolve(urlArray);
-      }
-    });
-  });
-};
-//ESTE SE USA ASI EN FUNCION MD --->
-    
-     findUrl(absoluteUserInput).then((url) => {
-            url.forEach((link) => {
-              urlArray.push(link);
-              //console.log(link);
-            });
-            resolve(urlArray);
-          }); */

@@ -5,17 +5,19 @@ const {
   isFile,
   readDirectory,
   extCheck,
-  //findUrl,
+  readNewFile,
   extractLinks,
-  uniqueUrl,
+  optionStats,
   usingLinkCheck,
-  //validateLink,
-  //brokenCount,
+  optionValidateStats,
+  thirdPosition,
 } = require("./index.js");
 const colors = require("colors");
-const fs = require("fs");
+/*const fs = require("fs");
 const markdownLinkExtractor = require("markdown-link-extractor");
 const linkCheck = require("link-check");
+const { resolve } = require("path");
+const { reject } = require("promise"); */
 
 const route = process.argv[2];
 const options = process.argv[3];
@@ -24,8 +26,6 @@ const foundLinks = extractLinks(absoluteUserInput);
 
 const mdLinks = (route, options) => {
   return new Promise((resolve, reject) => {
-    const urlArray = [];
-    const broken2 = [];
     if (absoluteUserInput) {
       //ES FILE?
       if (isFile(absoluteUserInput) === true) {
@@ -36,19 +36,55 @@ const mdLinks = (route, options) => {
           return;
           //SI ES MD
         } else {
-          //aca se retorna la cantidad de link unicos
-
-          uniqueUrl(foundLinks);
-          foundLinks.forEach((link) => usingLinkCheck(link));
+          readNewFile(absoluteUserInput)
+            .then((file) => {
+              foundLinks.forEach((link) => usingLinkCheck(link));
+            })
+            .then((res) => {
+              if (options.validates !== true && options.stats !== true) {
+                return res;
+              } else if (options.validates === true && options.stats === true) {
+                return Promise.all(foundLinks.map((e) => usingLinkCheck(e)));
+              } else if (options.stats === true) {
+                return optionStats(foundLinks);
+              } else {
+                return Promise.all(foundLinks.map((e) => usingLinkCheck(e)));
+              }
+            })
+            .then((res) => {
+              //console.log("HOLA SOY links ", foundLinks);
+              if (options.validates !== true && options.stats !== true) {
+                resolve(
+                  foundLinks.map((e) => `${route}   ${e}\n`.cyan).join("")
+                );
+              } else if (options.validates === true && options.stats === true) {
+                resolve(
+                  //ACA DEBERIA DEVOLVER TOTAL DE LINKS + LINKS UNICOS + LINKS ROTOS
+                  "console.log Linea 61" +
+                    optionValidateStats(foundLinks, optionStats(foundLinks))
+                );
+              } else if (options.stats === true) {
+                //ACA TAMBIEN DEBERIA DEVOLVER HREF Y RUTA
+                resolve(`Total: ${res.total}\nUnique: ${res.unique}`);
+              } else {
+                resolve(
+                  res
+                    .map((e) => `${route} ${e} ${e.statusCode} ${e.status}\n`)
+                    .join("")
+                );
+              }
+            })
+            .catch((error) => {
+              console.log(error);
+              reject("Existe un problema en la ejecucion");
+            });
         }
-      } else {
-        return console.log("hola " + readDirectory(absoluteUserInput));
       }
     }
   });
 };
 
-mdLinks()
+mdLinks(route, thirdPosition(process))
   .then((resolve) => {
     console.log(resolve);
   })
