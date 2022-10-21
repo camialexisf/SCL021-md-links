@@ -107,17 +107,18 @@ const usingLinkCheck = (route) => {
         statusCode: result.statusCode + " " + statusResponse,
         //status: statusResponse,
       });
+      return;
     });
   });
 };
-("");
 const optionStats = (linksArray) => {
   const total = linksArray.length;
   const unique = uniqueUrl(linksArray);
   return { total, unique };
 };
 const optionValidateStats = (linksArray, totalUnique) => {
-  let broken = linksArray.filter((e) => e.status === "fail").length;
+  //console.log(Promise.resolve(linksArray.map((e) => usingLinkCheck(e))));
+  let broken = linksArray.filter((e) => e.status === "dead").length;
   return { ...totalUnique, broken: broken };
 };
 const thirdPosition = (options) => {

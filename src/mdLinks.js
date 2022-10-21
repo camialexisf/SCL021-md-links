@@ -52,16 +52,13 @@ const mdLinks = (route, options) => {
               }
             })
             .then((res) => {
-              //console.log("HOLA SOY links ", foundLinks);
               if (options.validates !== true && options.stats !== true) {
                 resolve(
                   foundLinks.map((e) => `${route}   ${e}\n`.cyan).join("")
                 );
               } else if (options.validates === true && options.stats === true) {
-                resolve(
-                  //ACA DEBERIA DEVOLVER TOTAL DE LINKS + LINKS UNICOS + LINKS ROTOS
-                  "console.log Linea 61" +
-                    optionValidateStats(foundLinks, optionStats(foundLinks))
+                console.log(
+                  optionValidateStats(foundLinks, optionStats(foundLinks))
                 );
               } else if (options.stats === true) {
                 //ACA TAMBIEN DEBERIA DEVOLVER HREF Y RUTA
