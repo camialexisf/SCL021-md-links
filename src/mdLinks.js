@@ -46,9 +46,10 @@ const mdLinks = (route, options) => {
               } else if (options.validates === true && options.stats === true) {
                 return Promise.all(foundLinks.map((e) => usingLinkCheck(e)));
               } else if (options.stats === true) {
-                return optionStats(foundLinks);
+                console.table(optionStats(foundLinks));
               } else {
                 return Promise.all(foundLinks.map((e) => usingLinkCheck(e)));
+                //console.log(usingLinkCheck(foundLinks));
               }
             })
             .then((res) => {
@@ -57,16 +58,18 @@ const mdLinks = (route, options) => {
                   foundLinks.map((e) => `${route}   ${e}\n`.cyan).join("")
                 );
               } else if (options.validates === true && options.stats === true) {
-                console.log(
+                console.table(
                   optionValidateStats(foundLinks, optionStats(foundLinks))
                 );
               } else if (options.stats === true) {
                 //ACA TAMBIEN DEBERIA DEVOLVER HREF Y RUTA
+                //ojito con total acaaaa
                 resolve(`Total: ${res.total}\nUnique: ${res.unique}`);
               } else {
                 resolve(
+                  //falta añadir ruta archivo
                   res
-                    .map((e) => `${route} ${e} ${e.statusCode} ${e.status}\n`)
+                    .map((e) => `${e.href} ${e.statusCode} ${e.status}\n`)
                     .join("")
                 );
               }

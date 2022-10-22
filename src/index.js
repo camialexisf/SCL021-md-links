@@ -104,8 +104,8 @@ const usingLinkCheck = (route) => {
       resolve({
         file: process.argv[2],
         href: result.link,
-        statusCode: result.statusCode + " " + statusResponse,
-        //status: statusResponse,
+        statusCode: result.statusCode,
+        status: statusResponse,
       });
       return;
     });
@@ -117,7 +117,6 @@ const optionStats = (linksArray) => {
   return { total, unique };
 };
 const optionValidateStats = (linksArray, totalUnique) => {
-  //console.log(Promise.resolve(linksArray.map((e) => usingLinkCheck(e))));
   let broken = linksArray.filter((e) => e.status === "dead").length;
   return { ...totalUnique, broken: broken };
 };
@@ -127,7 +126,7 @@ const thirdPosition = (options) => {
     option = { validates: true, stats: true };
   } else if (process.argv[3] === "--stats") {
     option = { stats: true };
-  } else if (process.argv[3] === "--validate") {
+  } else if (process.argv[3] === "--validates") {
     option = { validates: true };
   } else {
     option = {};
