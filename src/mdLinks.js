@@ -13,11 +13,6 @@ const {
   thirdPosition,
 } = require("./index.js");
 const colors = require("colors");
-/*const fs = require("fs");
-const markdownLinkExtractor = require("markdown-link-extractor");
-const linkCheck = require("link-check");
-const { resolve } = require("path");
-const { reject } = require("promise"); */
 
 const route = process.argv[2];
 const options = process.argv[3];
@@ -37,7 +32,7 @@ const mdLinks = (route, options) => {
           //SI ES MD
         } else {
           readNewFile(absoluteUserInput)
-            .then((file) => {
+            .then(() => {
               foundLinks.forEach((link) => usingLinkCheck(link));
             })
             .then((res) => {
@@ -46,30 +41,52 @@ const mdLinks = (route, options) => {
               } else if (options.validates === true && options.stats === true) {
                 return Promise.all(foundLinks.map((e) => usingLinkCheck(e)));
               } else if (options.stats === true) {
-                console.table(optionStats(foundLinks));
+                return optionStats(foundLinks);
               } else {
                 return Promise.all(foundLinks.map((e) => usingLinkCheck(e)));
-                //console.log(usingLinkCheck(foundLinks));
               }
             })
             .then((res) => {
               if (options.validates !== true && options.stats !== true) {
                 resolve(
-                  foundLinks.map((e) => `${route}   ${e}\n`.cyan).join("")
+                  foundLinks.map((e) => `Ruta: `.cyan +`${route}\n` + `Href: `.cyan +`${e}\n` +`-------------------------------------------------------------------------------\n`.grey).join("")
                 );
               } else if (options.validates === true && options.stats === true) {
-                console.table(
-                  optionValidateStats(foundLinks, optionStats(foundLinks))
+                const results = optionValidateStats(
+                  foundLinks,
+                  optionStats(foundLinks)
+                );
+                resolve(
+                  `Total: `.cyan +
+                    `${results.total}\n` +
+                    `Unique: `.cyan +
+                    `${results.unique}\n` +
+                    `Broken: `.cyan +
+                    `${results.broken}\n`
                 );
               } else if (options.stats === true) {
                 //ACA TAMBIEN DEBERIA DEVOLVER HREF Y RUTA
-                //ojito con total acaaaa
-                resolve(`Total: ${res.total}\nUnique: ${res.unique}`);
+                resolve(
+                  `Total: `.cyan +
+                    `${res.total}\n` +
+                    `Unique: `.cyan +
+                    `${res.unique}`
+                );
               } else {
                 resolve(
-                  //falta añadir ruta archivo
                   res
-                    .map((e) => `${e.href} ${e.statusCode} ${e.status}\n`)
+                    .map(
+                      (e) =>
+                        `Ruta: `.cyan +
+                        `${absoluteUserInput}\n` +
+                        `Href: `.cyan +
+                        `${e.href}\n` +
+                        `Status Code: `.cyan +
+                        `${e.statusCode}\n` +
+                        `Status: `.cyan +
+                        `${e.status}\n` +
+                        `-------------------------------------------------------------------------------\n`.grey
+                    )
                     .join("")
                 );
               }

@@ -117,6 +117,8 @@ const optionStats = (linksArray) => {
   return { total, unique };
 };
 const optionValidateStats = (linksArray, totalUnique) => {
+  /* let analisis = linksArray.forEach((link) => usingLinkCheck(link));
+  console.log(analisis); */
   let broken = linksArray.filter((e) => e.status === "dead").length;
   return { ...totalUnique, broken: broken };
 };
